@@ -19,6 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - 콘솔 스크립트 `child-photo-upload-job <enroll|filter|upload> ...` 도 동일.
 - 구글 포토 업로드: `python -m child_photo_upload_job.main upload <폴더> [--client-secret <json>] [--dry-run]`
   - `yyyy-mm` 하위폴더명을 앨범명으로 매핑. `--dry-run` 은 인증/네트워크 없이 예정 집계만.
+- 전체 파이프라인: `python -m child_photo_upload_job.main process <입력> <출력> [--person <이름>] [--client-secret <json>] [--dry-run]`
+  - filter(골라내기) 후 그 결과 폴더를 곧바로 구글 포토에 업로드한다. `--dry-run` 은 필터는 실행하되 업로드는 집계만.
 - 테스트 전체: `pytest` / 단일: `pytest tests/test_main.py::test_person_matcher`
 - 린트: `ruff check .` / 포맷: `ruff format .`
 
@@ -26,9 +28,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 두 개의 **독립 서브패키지**로 구성된다. ① 얼굴 인식 `face_recognition/`(진입점 `RunFaceRecognition`),
 ② 구글 포토 업로드 `google_photos/`(진입점 `RunGooglePhotosUpload`). 둘은 서로 import 의존이 없다.
-CLI(`main.py`)가 세 서브커맨드(`enroll`/`filter` → 얼굴 인식, `upload` → 구글 포토)를 각 오케스트레이터에
-위임한다. 둘을 묶는 **상위 오케스트라**(`orchestrator.py`, filter→upload)는 또 다른 계층으로 추가될
-예정이다(아직 없음).
+이 둘을 잇는 **상위 오케스트라 `orchestrator.py`(`PhotoPipeline`)** 만이 양쪽을 import 하는 최상위 계층이다.
+CLI(`main.py`)가 네 서브커맨드를 위임한다: `enroll`/`filter` → 얼굴 인식, `upload` → 구글 포토,
+`process` → `PhotoPipeline`(filter→upload 전체).
+
+- **`orchestrator.py` — `PhotoPipeline`**: filter→upload 를 잇는 상위 오케스트라. 입력을 골라
+  `output_dir/yyyy-mm/` 로 정리한 뒤 그 폴더를 구글 포토에 업로드한다. 두 러너를 **지연 생성**(dry-run·테스트
+  주입 용이). 결과는 `PipelineResult(filter, upload)`.
 
 - **`face_recognition/run_face_recognition.py` — `RunFaceRecognition`**: 얼굴 인식 시스템의 단일 진입점.
   비싼 `FaceDetector` 를 생성자에서 1회 만들어 보유·재사용하며 `enroll()`/`run()`(=filter) 을 위임한다.
