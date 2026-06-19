@@ -1,0 +1,35 @@
+# Virtual environment
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environment / secrets
+.env
+*.local
+
+# Google Photos OAuth / 업로드 상태 (민감 — 커밋 금지)
+client_secret*.json
+token.json
+upload_state.json
+
+# 등록 인물 임베딩 (생체정보 — 커밋 금지)
+Image-processing/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
