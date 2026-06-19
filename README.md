@@ -89,6 +89,11 @@ child-photo-upload-job filter ./입력폴더 ./출력폴더
 > 출력은 인물 구분 없이 `yyyy-mm/` 로 통합 저장됩니다. (positional 인자와 헷갈리지 않게 `--person` 을
 > 명령 끝에 두는 것을 권장)
 
+![다중 인물 필터 실행 예시](docs/multi-person-example.svg)
+
+위 예시처럼 `doyun`, `minchan` 두 아이 중 한 명이라도 찍힌 사진이 한 번에 골라져
+날짜별 폴더로 통합 저장됩니다.
+
 출력 예시:
 
 ```
