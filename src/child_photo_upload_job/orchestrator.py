@@ -75,7 +75,7 @@ class PhotoPipeline:
         self,
         input_dir: Path,
         output_dir: Path,
-        person: str | None = None,
+        person: str | list[str] | None = None,
         match_threshold: float = DEFAULT_THRESHOLD,
         recursive: bool = False,
         move: bool = False,

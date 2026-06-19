@@ -47,7 +47,7 @@ class RunFaceRecognition:
         self,
         input_dir: Path,
         output_dir: Path,
-        person: str | None = None,
+        person: str | list[str] | None = None,
         match_threshold: float = DEFAULT_THRESHOLD,
         recursive: bool = False,
         move: bool = False,
@@ -55,11 +55,13 @@ class RunFaceRecognition:
     ) -> FilterResult:
         """입력 폴더에서 (선택 인물의) 얼굴이 있는 이미지만 골라 날짜별로 저장한다.
 
-        ``person`` 이 주어지면 등록된 인물 모델을 불러와 그 인물만 골라낸다.
+        ``person`` 은 한 명(str) 또는 여러 명(list[str])을 받는다. 여러 명이면 등록된 인물 중
+        **한 명이라도** 일치하면 통과(OR 매칭)하며, 출력은 날짜별(`yyyy-mm`)로 통합 저장한다.
         """
-        matcher = (
-            PersonMatcher.load(self.model_dir, person, match_threshold) if person else None
-        )
+        matcher = None
+        if person:
+            names = [person] if isinstance(person, str) else list(person)
+            matcher = PersonMatcher.load_many(self.model_dir, names, match_threshold)
         return filter_folder(
             input_dir=input_dir,
             output_dir=output_dir,

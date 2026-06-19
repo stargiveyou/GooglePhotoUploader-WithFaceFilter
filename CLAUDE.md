@@ -15,7 +15,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - 설치(개발 도구 포함, editable): `pip install -e ".[dev]"` — `pyproject.toml` 의존성 변경 후 필수.
 - 인물 등록: `python -m child_photo_upload_job.main enroll <이름> <기준이미지폴더>` → `Image-processing/<이름>/<이름>.npy` 생성.
-- 골라내기: `python -m child_photo_upload_job.main filter <입력폴더> <출력폴더> [--person <이름>]`
+- 골라내기: `python -m child_photo_upload_job.main filter <입력폴더> <출력폴더> [--person <이름...>]`
+  - `--person` 은 여러 명 지정 가능(OR 매칭): `--person doyun minchan`.
   - 콘솔 스크립트 `child-photo-upload-job <enroll|filter|upload> ...` 도 동일.
 - 구글 포토 업로드: `python -m child_photo_upload_job.main upload <폴더> [--client-secret <json>] [--dry-run]`
   - `yyyy-mm` 하위폴더명을 앨범명으로 매핑. `--dry-run` 은 인증/네트워크 없이 예정 집계만.
@@ -46,7 +47,8 @@ CLI(`main.py`)가 네 서브커맨드를 위임한다: `enroll`/`filter` → 얼
 - **`face_recognition/identity.py` — `enroll_person()` / `PersonMatcher`**: '인식 트레이닝 모델'은 등록한 기준 얼굴들의
   정규화 임베딩 묶음(`Image-processing/<이름>/<이름>.npy`, `(N, 512)` 단일 배열)이다. enroll 은 각 기준 이미지의 **가장 큰 얼굴**을 대상으로 본다.
   매칭은 **코사인 유사도(정규화 임베딩의 내적) ≥ 임계값**(`DEFAULT_THRESHOLD=0.35`)으로 판정하며,
-  얼굴 여러 개 중 하나라도 일치하면 통과.
+  얼굴 여러 개 중 하나라도 일치하면 통과. **다중 인물**은 `PersonMatcher.load_many()` 가 여러 인물의
+  임베딩을 `(N_total, 512)` 로 vstack 해 OR 매칭한다(CLI `--person a b ...`, 출력은 날짜별 통합).
 - **`face_recognition/organize.py` — `photo_year_month()` / `unique_dest()`**: 저장 시 폴더(`yyyy-mm`)를 결정한다.
   날짜는 **EXIF 촬영일시(`DateTimeOriginal`) 우선, 없으면 파일 수정시각**으로 폴백. 파일명 충돌 시 `_1`, `_2` 접미사.
 - **`face_recognition/pipeline.py` — `filter_folder()` / `FilterResult`**: 검출 오케스트레이션. 이미지별로

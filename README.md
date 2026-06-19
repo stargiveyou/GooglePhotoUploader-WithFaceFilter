@@ -78,9 +78,16 @@ child-photo-upload-job enroll doyun ./기준사진
 # 등록한 인물만 골라 yyyy-mm 폴더로 정리
 child-photo-upload-job filter ./입력폴더 ./출력폴더 --person doyun
 
+# 여러 인물(아이 2명 등) — 한 명이라도 있으면 통과(OR 매칭), 날짜별로 통합 저장
+child-photo-upload-job filter ./입력폴더 ./출력폴더 --person doyun minchan
+
 # 인물 구분 없이 '얼굴이 있는' 모든 이미지
 child-photo-upload-job filter ./입력폴더 ./출력폴더
 ```
+
+> `--person` 에 여러 이름을 주면 등록된 인물 중 **한 명이라도** 일치하는 사진을 골라내며(검출은 1회),
+> 출력은 인물 구분 없이 `yyyy-mm/` 로 통합 저장됩니다. (positional 인자와 헷갈리지 않게 `--person` 을
+> 명령 끝에 두는 것을 권장)
 
 출력 예시:
 
@@ -123,7 +130,7 @@ child-photo-upload-job process ./입력폴더 ./출력폴더 --person doyun --dr
 
 | 옵션 | 설명 |
 |------|------|
-| `--person <이름>` | 등록된 해당 인물만 골라냄 (생략 시 얼굴 유무만 판정) |
+| `--person <이름...>` | 등록된 인물만 골라냄. 여러 명 지정 시 OR 매칭 (생략 시 얼굴 유무만 판정) |
 | `--match-threshold <float>` | 인물 일치 코사인 임계값 (기본 0.35, 높을수록 엄격) |
 | `-r, --recursive` | 입력 하위 폴더까지 탐색 |
 | `--move` | 복사 대신 이동 |

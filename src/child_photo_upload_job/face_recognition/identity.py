@@ -87,6 +87,24 @@ class PersonMatcher:
             )
         return cls(name, embeddings, threshold)
 
+    @classmethod
+    def load_many(
+        cls, model_dir: Path, names: Iterable[str], threshold: float = DEFAULT_THRESHOLD
+    ) -> PersonMatcher:
+        """여러 인물의 임베딩을 하나로 합쳐 OR 매칭하는 매처를 만든다.
+
+        모든 인물의 정규화 임베딩을 ``(N_total, 512)`` 로 vstack 하므로, 어떤 얼굴이 등록된
+        인물 중 **한 명이라도** 임계값 이상으로 일치하면 통과한다(매칭 로직 변경 없이 그대로 동작).
+        """
+        names = list(names)
+        if not names:
+            raise ValueError("인물 이름이 비어 있습니다.")
+        if len(names) == 1:
+            return cls.load(model_dir, names[0], threshold)
+        stacks = [cls.load(model_dir, name, threshold).embeddings for name in names]
+        combined = np.vstack(stacks).astype(np.float32)
+        return cls("+".join(names), combined, threshold)
+
     def best_similarity(self, embedding: np.ndarray) -> float:
         """주어진 얼굴 임베딩과 등록 임베딩들 간 최대 코사인 유사도(둘 다 정규화)."""
         return float(np.max(self.embeddings @ embedding))

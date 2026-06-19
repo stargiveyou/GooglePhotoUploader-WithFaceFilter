@@ -50,7 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
     pf = sub.add_parser("filter", help="얼굴/인물 이미지 골라내기")
     pf.add_argument("input_dir", type=Path, help="검사할 입력 폴더")
     pf.add_argument("output_dir", type=Path, help="결과 저장 폴더")
-    pf.add_argument("--person", help="이 이름으로 등록된 인물만 골라냄(생략 시 얼굴 유무만 판정)")
+    pf.add_argument(
+        "--person",
+        nargs="+",
+        help="등록된 인물(들)만 골라냄. 여러 명이면 OR 매칭(생략 시 얼굴 유무만 판정)",
+    )
     pf.add_argument(
         "--model-dir",
         type=Path,

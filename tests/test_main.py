@@ -50,6 +50,28 @@ def test_person_matcher():
     assert matcher.matches([_face([0, 1, 0]), _face([1, 0, 0])])  # 하나라도 일치하면 True
 
 
+def test_person_matcher_load_many(tmp_path: Path):
+    # 두 인물 임베딩을 각각 .npy 로 저장
+    def _save(name, vec):
+        d = tmp_path / name
+        d.mkdir()
+        v = np.asarray([vec], dtype=np.float32)
+        np.save(d / f"{name}.npy", v / np.linalg.norm(v))
+
+    _save("doyun", [1, 0, 0])
+    _save("minchan", [0, 1, 0])
+
+    multi = PersonMatcher.load_many(tmp_path, ["doyun", "minchan"], threshold=0.5)
+    assert multi.embeddings.shape == (2, 3)               # 두 인물 임베딩이 합쳐짐
+    assert multi.matches([_face([1, 0, 0])])              # doyun 일치
+    assert multi.matches([_face([0, 1, 0])])              # minchan 일치 (OR)
+    assert not multi.matches([_face([0, 0, 1])])           # 둘 다 아님 → 불일치
+
+    # 한 명만 주면 단일 load 와 동일
+    single = PersonMatcher.load_many(tmp_path, ["doyun"], threshold=0.5)
+    assert single.embeddings.shape == (1, 3)
+
+
 def test_unique_dest(tmp_path: Path):
     (tmp_path / "a.jpg").write_bytes(b"")
     assert unique_dest(tmp_path, "a.jpg").name == "a_1.jpg"  # 충돌 → 접미사
