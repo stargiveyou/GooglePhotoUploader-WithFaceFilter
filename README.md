@@ -1,5 +1,7 @@
 # GooglePhotoUploader-WithFaceFilter
 
+Claude Code로 개발한 프로젝트입니다.
+
 입력 폴더의 이미지를 [InsightFace](https://github.com/deepinsight/insightface)로 분석해
 **얼굴(또는 등록한 특정 인물)이 있는 이미지만 골라 촬영 연-월(`yyyy-mm`)별로 정리**하고,
 정리된 결과를 **구글 포토에 앨범별로 업로드**하는 CLI 도구입니다.
